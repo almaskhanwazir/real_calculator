@@ -1,36 +1,64 @@
 import { useState } from 'react';
 import Layout from '../../components/Layout';
+import EmbeddDialogue from '../../components/EmbeddDialogue';
 import Link from 'next/link';
+const calculatorData = [
+  {
+    name: 'compoundInterest',
+    description: 'A tropical calculator with a sweet and tangy flavor.',
+    image: 'https://cdn.slidesharecdn.com/ss_thumbnails/compound-interest-100310184142-phpapp02-thumbnail-4.jpg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+  },
+  {
+    name: 'Biology',
+    description: 'A sweet and creamy calculator that is high in potassium.',
+    image: 'https://images.pexels.com/photos/5966630/pexels-photo-5966630.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+  },
+  {
+    name: 'Chemestry',
+    description: 'A tropical calculator with a sweet and juicy flesh.',
+    image: 'https://images.pexels.com/photos/5217960/pexels-photo-5217960.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+  },
+];
 
 const Finance = () => {
   const [embedCode, setEmbedCode] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleGenerateEmbedCode = () => {
-    const code = `<iframe src="${window.location.origin}/modules/finance/CompoundInterest" width="100%" height="400px" frameborder="0"></iframe>`;
-    setEmbedCode(code);
-  };
+  function handleGenerateEmbedCode(name) {
+    const embeddedCode = `<iframe src="${window.location.origin}/finance/${name}" width="100%" height="400px" frameborder="0"></iframe>`;
+    setEmbedCode(embeddedCode);
+    setIsOpen(true);
+  }
+  function closePopup() {
+    debugger
+    setIsOpen(false);
+  }
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-4">Finance</h1>
-        <ul className="space-y-2">
-          <li>
-            <Link href="/finance/compoundInterest">
-              <span  className="text-blue-500 hover:text-blue-600">Compound Interest Calculator</span >
-            </Link>
-          </li>
-        </ul>
-        <div className="mb-4">
-          <button onClick={handleGenerateEmbedCode} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Generate Embed Code</button>
-        </div>
-        {embedCode.length > 0 && (
-          <div className="bg-gray-100 p-4 rounded mb-4">
-            <h2 className="text-xl font-bold mb-2">Embed Code</h2>
-            <textarea className="w-full border border-gray-400 p-2 rounded" value={embedCode} readOnly />
+      <div class="h-screen w-screen py-6 bg-yellow-50 flex items-center justify-center flex-wrap">
+        {calculatorData.map(calculator => (
+          <div class="bg-white w-72 h-96 shadow-md rounded m-3" key={calculator.name}>
+            <div class="h-3/4 w-full">
+              <img class="w-full h-full object-cover rounded-t" src={calculator.image} alt={calculator.name} />
+            </div>
+            <div class="w-full h-1/4 p-3">
+              <Link href={`/finance/${calculator.name}`}>
+                <span class=" hover:text-yellow-600 text-gray-700">
+                  <span class="text-lg font-semibold uppercase tracking-wide">{calculator.name}</span>
+                </span>
+              </Link>
+              <p class="text-gray-600 text-sm leading-5 mt-1">{calculator.description}</p>
+            </div>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2" onClick={() => handleGenerateEmbedCode(calculator.name)}>Create Link</button>
           </div>
-        )}
+        ))}
+        <div>
+          {isOpen==true && <EmbeddDialogue content={embedCode} onClose={() => closePopup()} />}
+        </div>
       </div>
+
+
     </Layout>
   );
 };
