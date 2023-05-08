@@ -73,7 +73,7 @@ debugger
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4">
+      <div id="compoundInterest" className="max-w-2xl mx-auto px-4">
         <h1 className="text-3xl font-bold mb-4">Compound Interest Calculator</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
