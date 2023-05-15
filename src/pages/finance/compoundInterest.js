@@ -72,12 +72,12 @@ debugger
   };
 
   return (
-    <Layout>
+    
       <div id="compoundInterest" className="max-w-2xl mx-auto px-4">
         <h1 className="text-3xl font-bold mb-4">Compound Interest Calculator</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="principal" className="block font-bold mb-2">Principal</label>
+            <span htmlFor="principal" className="block font-bold mb-2">Principal</span>
             <input
               type="number"
               id="principal"
@@ -88,7 +88,7 @@ debugger
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="interestRate" className="block font-bold mb-2">Interest Rate</label>
+            <span htmlFor="interestRate" className="block font-bold mb-2">Interest Rate</span>
             <input
               type="number"
               id="interestRate"
@@ -99,7 +99,7 @@ debugger
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="time" className="block font-bold mb-2">Time (years)</label>
+            <span htmlFor="time" className="block font-bold mb-2">Time (years)</span>
             <input
               type="number"
               id="time"
@@ -128,7 +128,7 @@ debugger
           </div>
         )}
       </div>
-    </Layout>
+    
   );
 };
 
