@@ -25,7 +25,7 @@ const Finance = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   function handleGenerateEmbedCode(name) {
-    const embeddedCode = `<iframe src="${window.location.origin}/finance/${name}" width="100%" height="400px" frameborder="0"></iframe>`;
+    const embeddedCode = `<iframe src="${window.location.origin}/finance/${name}" width="100%" height="500px" frameborder="0"></iframe>`;
     setEmbedCode(embeddedCode);
     setIsOpen(true);
   }
