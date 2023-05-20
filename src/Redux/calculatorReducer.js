@@ -1,14 +1,22 @@
-// counterReducer.js
+// calculatorReducer.js
 
-const initialState = { calculatorId: null };
+const initialState = {
+  calculatorTheme: {
+    backgroundColor: 'white',
+    textColor: 'black'
+  }
+};
 
-function calculatorReducer(state = initialState, action) {
+const calculatorReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SETCALCULATORID':
-      return { calculatorId: state.calculatorId };
+    case 'CHANGE_THEME':
+      return {
+        ...state,
+        calculatorTheme: action.payload
+      };
     default:
       return state;
   }
-}
+};
 
 export default calculatorReducer;

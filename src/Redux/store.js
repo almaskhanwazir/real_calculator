@@ -1,7 +1,11 @@
 // store.js
 
-import { createStore } from 'redux';
-import rootReducer from './reducers';
+import { createStore, combineReducers } from 'redux';
+import calculatorReducer from './calculatorReducer';
+
+const rootReducer = combineReducers({
+  calculator: calculatorReducer
+});
 
 const store = createStore(rootReducer);
 

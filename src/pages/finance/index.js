@@ -30,7 +30,7 @@ const Finance = () => {
     setIsOpen(true);
   }
   function closePopup() {
-    debugger
+    
     setIsOpen(false);
   }
 

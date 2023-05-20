@@ -1,10 +1,12 @@
-// reducers.js
+// store.js
 
-import { combineReducers } from 'redux';
+import { createStore, combineReducers } from 'redux';
 import calculatorReducer from './calculatorReducer';
 
 const rootReducer = combineReducers({
-    calculatorId: calculatorReducer
+  calculator: calculatorReducer
 });
 
-export default rootReducer;
+const store = createStore(rootReducer);
+
+export default store;
