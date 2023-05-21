@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { connect } from 'react-redux';
-import { changeTheme } from '../../Redux/CalculatorActions';
+import { changeTheme } from '../../redux/calculatorActions';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { format } from 'date-fns';
 
@@ -89,7 +89,7 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
 
       <div className={`border-double border-4 border-${textColor}-600 flex float-right`}>
 
-        <p class="">Dark Theme</p>
+        <p class="yy">Dark Theme</p>
         <label class="ml-4 inline-flex relative items-center cursor-pointer">
           <input
             type="checkbox"
