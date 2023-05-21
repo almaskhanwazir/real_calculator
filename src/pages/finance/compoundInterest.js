@@ -151,7 +151,7 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
       {result > 0 && (
         <div>
           <h2 style={{ color: textColor }} className="text-xl font-bold mb-2">Result</h2>
-          <p>The interest is {result}</p>
+          <p style={{ color: textColor }}>The interest is {result}</p>
           <LineChart width={600} height={400} data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
