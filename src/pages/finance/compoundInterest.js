@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { connect } from 'react-redux';
-import { changeTheme } from '../../redux/calculatorActions';
+import { changeTheme } from '../../reduxStore/calculatorActions';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { format } from 'date-fns';
 
