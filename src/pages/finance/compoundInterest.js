@@ -82,14 +82,14 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
 
   return (
 
-    <div id="compoundInterest" className="max-w-2xl mx-auto px-4" style={{ backgroundColor, color: textColor }}>
+    <div id="compoundInterest" className="max-w-2xl mx-auto px-4" style={{ backgroundColor }}>
 
-      <h1 className="text-3xl font-bold mb-4">Compound Interest Calculator</h1>
+      <h1 className="text-3xl font-bold mb-4" style={{ color: textColor }}>Compound Interest Calculator</h1>
       {/* <button onClick={handleThemeChange} className={`bg-${isDarkMode ? 'gray-200' : 'blue-500'} ml-8 text-white py-2 px-4 rounded hover:bg-${isDarkMode ? 'gray-500' :'blue-600'}`}>Toggle Theme</button> */}
 
       <div className={`border-double border-4 border-${textColor}-600 flex float-right`}>
 
-        <p class="yy">Dark Theme</p>
+        <p style={{ color: textColor }} class="yy">Dark Theme</p>
         <label class="ml-4 inline-flex relative items-center cursor-pointer">
           <input
             type="checkbox"
@@ -112,7 +112,7 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
       </div>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <span htmlFor="principal" className="block font-bold mb-2">Principal</span>
+          <span htmlFor="principal" style={{ color: textColor }} className="block font-bold mb-2">Principal</span>
           <input
             type="number"
             id="principal"
@@ -123,7 +123,7 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
           />
         </div>
         <div className="mb-4">
-          <span htmlFor="interestRate" className="block font-bold mb-2">Interest Rate</span>
+          <span htmlFor="interestRate" style={{ color: textColor }} className="block font-bold mb-2">Interest Rate</span>
           <input
             type="number"
             id="interestRate"
@@ -134,7 +134,7 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
           />
         </div>
         <div className="mb-4">
-          <span htmlFor="time" className="block font-bold mb-2">Time (years)</span>
+          <span htmlFor="time" style={{ color: textColor }} className="block font-bold mb-2">Time (years)</span>
           <input
             type="number"
             id="time"
@@ -150,7 +150,7 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
       </form>
       {result > 0 && (
         <div>
-          <h2 className="text-xl font-bold mb-2">Result</h2>
+          <h2 style={{ color: textColor }} className="text-xl font-bold mb-2">Result</h2>
           <p>The interest is {result}</p>
           <LineChart width={600} height={400} data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
