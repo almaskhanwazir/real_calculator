@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { changeTheme } from '../../reduxStore/calculatorActions';
-import DynamicCalculator from '../../components/DynamicCalculator';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { format } from 'date-fns';
 const calculator =
@@ -103,7 +102,7 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
 
     <div id="compoundInterest" className="max-w-2xl mx-auto px-4" style={{ backgroundColor }}>
 
-      <DynamicCalculator data={calculator}/>
+      //<DynamicCalculator data={calculator}/>
     </div>
 
   );

@@ -26,7 +26,7 @@ const calculator =
 };
 
 
-const dynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
+const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
   const router = useRouter();
   const { backgroundColor, textColor } = calculatorTheme;
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -193,4 +193,4 @@ const mapDispatchToProps = {
   changeTheme
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(dynamicCalculatorPage);
+export default connect(mapStateToProps, mapDispatchToProps)(DynamicCalculatorPage);
