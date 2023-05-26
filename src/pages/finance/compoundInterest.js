@@ -102,7 +102,7 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
 
     <div id="compoundInterest" className="max-w-2xl mx-auto px-4" style={{ backgroundColor }}>
 
-      //<DynamicCalculator data={calculator}/>
+      {/* <DynamicCalculator data={calculator}/> */}
     </div>
 
   );
