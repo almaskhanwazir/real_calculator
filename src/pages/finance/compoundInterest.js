@@ -1,9 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { changeTheme } from '../../reduxStore/calculatorActions';
+import DynamicCalculator from '../../components/DynamicCalculator';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { format } from 'date-fns';
-
+const calculator =
+{
+  name: "Compound Interest Calculator",
+  inputs: [
+    { name: "principle", type: "number", label: "Principle", value: "" },
+    { name: "rate", type: "number", label: "Rate of interest", value: "" },
+    { name: "time", type: "number", label: "Time period", value: "" },
+    {
+      name: "compoundInterval",
+      type: "number",
+      label: "Compounding interval (in months)",
+      value: "",
+    },
+  ],
+  formula:
+    "principle * Math.pow(1 + (rate / (compoundInterval * 100)), (compoundInterval * time)) - principle",
+  resultName: "Compound Interest",
+  isGraph: true
+};
 const options = {
   scales: {
     x: {
@@ -47,121 +66,44 @@ const CompoundInterest = ({ calculatorTheme, changeTheme }) => {
   const [chartData, setChartData] = useState({});
   const { backgroundColor, textColor } = calculatorTheme;
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
 
-    const rate = interestRate / 100;
-    let amount = principal;
-    let interest = 0;
-    const data = [];
-    data.push(principal);
+  //   const rate = interestRate / 100;
+  //   let amount = principal;
+  //   let interest = 0;
+  //   const data = [];
+  //   data.push(principal);
 
-    for (let i = 1; i <= time; i++) {
-      amount = amount * (1 + rate);
-      interest = amount - principal;
-      data.push(interest.toFixed(2));
-    }
+  //   for (let i = 1; i <= time; i++) {
+  //     amount = amount * (1 + rate);
+  //     interest = amount - principal;
+  //     data.push(interest.toFixed(2));
+  //   }
 
-    setResult(interest.toFixed(2));
-    setChartData(getChartData(data));
-  };
+  //   setResult(interest.toFixed(2));
+  //   setChartData(getChartData(data));
+  // };
 
-  const getChartData = (data) => {
-    return data.map((d, i) => ({
-      name: format(new Date(Date.now() + i * 24 * 60 * 60 * 1000), 'MMM d'),
-      interest: d,
-    }));
-  };
+  // const getChartData = (data) => {
+  //   return data.map((d, i) => ({
+  //     name: format(new Date(Date.now() + i * 24 * 60 * 60 * 1000), 'MMM d'),
+  //     interest: d,
+  //   }));
+  // };
 
-  const handleThemeChange = () => {
-    const newBackgroundColor = backgroundColor === 'white' ? 'black' : 'white';
-    const newTextColor = textColor === 'black' ? 'white' : 'black';
-    setIsDarkMode(!isDarkMode);
-    changeTheme({ backgroundColor: newBackgroundColor, textColor: newTextColor });
-  };
+  // const handleThemeChange = () => {
+  //   const newBackgroundColor = backgroundColor === 'white' ? 'black' : 'white';
+  //   const newTextColor = textColor === 'black' ? 'white' : 'black';
+  //   setIsDarkMode(!isDarkMode);
+  //   changeTheme({ backgroundColor: newBackgroundColor, textColor: newTextColor });
+  // };
 
   return (
 
     <div id="compoundInterest" className="max-w-2xl mx-auto px-4" style={{ backgroundColor }}>
 
-      <h1 className="text-3xl font-bold mb-4" style={{ color: textColor }}>Compound Interest Calculator</h1>
-      {/* <button onClick={handleThemeChange} className={`bg-${isDarkMode ? 'gray-200' : 'blue-500'} ml-8 text-white py-2 px-4 rounded hover:bg-${isDarkMode ? 'gray-500' :'blue-600'}`}>Toggle Theme</button> */}
-
-      <div className={`border-double border-4 border-${textColor}-600 flex float-right`}>
-
-        <p style={{ color: textColor }} class="yy">Dark Theme</p>
-        <label class="ml-4 inline-flex relative items-center cursor-pointer">
-          <input
-            type="checkbox"
-            className="sr-only peer"
-            checked={isDarkMode}
-            readOnly
-          />
-          <div
-            onClick={() => {
-              handleThemeChange(!isDarkMode);
-            }}
-            className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
-          ></div>
-          <span className="ml-2 text-sm font-medium text-gray-900">
-            ON
-                    </span>
-        </label>
-
-
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <span htmlFor="principal" style={{ color: textColor }} className="block font-bold mb-2">Principal</span>
-          <input
-            type="number"
-            id="principal"
-            className="w-full border border-gray-400 p-2 rounded"
-            value={principal}
-            onChange={(event) => setPrincipal(parseFloat(event.target.value))}
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <span htmlFor="interestRate" style={{ color: textColor }} className="block font-bold mb-2">Interest Rate</span>
-          <input
-            type="number"
-            id="interestRate"
-            className="w-full border border-gray-400 p-2 rounded"
-            value={interestRate}
-            onChange={(event) => setInterestRate(parseFloat(event.target.value))}
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <span htmlFor="time" style={{ color: textColor }} className="block font-bold mb-2">Time (years)</span>
-          <input
-            type="number"
-            id="time"
-            className="w-full border border-gray-400 p-2 rounded"
-            value={time}
-            onChange={(event) => setTime(parseFloat(event.target.value))}
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Calculate</button>
-        </div>
-      </form>
-      {result > 0 && (
-        <div>
-          <h2 style={{ color: textColor }} className="text-xl font-bold mb-2">Result</h2>
-          <p style={{ color: textColor }}>The interest is {result}</p>
-          <LineChart width={600} height={400} data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="interest" stroke="#8884d8" activeDot={{ r: 8 }} />
-          </LineChart>
-        </div>
-      )}
+      <DynamicCalculator data={calculator}/>
     </div>
 
   );

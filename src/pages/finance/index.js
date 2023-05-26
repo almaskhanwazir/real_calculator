@@ -5,16 +5,19 @@ import Link from 'next/link';
 const calculatorData = [
   {
     name: 'compoundInterest',
+    calculatorId: "1",
     description: 'A tropical calculator with a sweet and tangy flavor.',
     image: 'https://cdn.slidesharecdn.com/ss_thumbnails/compound-interest-100310184142-phpapp02-thumbnail-4.jpg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
   },
   {
     name: 'Biology',
+    calculatorId: "2",
     description: 'A sweet and creamy calculator that is high in potassium.',
     image: 'https://images.pexels.com/photos/5966630/pexels-photo-5966630.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
   },
   {
     name: 'Chemestry',
+    calculatorId: "3",
     description: 'A tropical calculator with a sweet and juicy flesh.',
     image: 'https://images.pexels.com/photos/5217960/pexels-photo-5217960.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
   },
@@ -24,8 +27,8 @@ const Finance = () => {
   const [embedCode, setEmbedCode] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
-  function handleGenerateEmbedCode(name) {
-    const embeddedCode = `<iframe src="${window.location.origin}/finance/${name}" width="100%" height="500px" frameborder="0"></iframe>`;
+  function handleGenerateEmbedCode(calId) {
+    const embeddedCode = `<iframe src="${window.location.origin}/finance/dynamicCalculatorPage?cal=${calId}" width="100%" height="500px" frameborder="0"></iframe>`;
     setEmbedCode(embeddedCode);
     setIsOpen(true);
   }
@@ -43,14 +46,14 @@ const Finance = () => {
               <img class="w-full h-full object-cover rounded-t" src={calculator.image} alt={calculator.name} />
             </div>
             <div class="w-full h-1/4 p-3">
-              <Link href={`/finance/${calculator.name}`}>
+              <Link href={`/finance/dynamicCalculatorPage?cal=${calculator.calculatorId}`}>
                 <span class=" hover:text-yellow-600 text-gray-700">
                   <span class="text-lg font-semibold uppercase tracking-wide">{calculator.name}</span>
                 </span>
               </Link>
               <p class="text-gray-600 text-sm leading-5 mt-1">{calculator.description}</p>
             </div>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2" onClick={() => handleGenerateEmbedCode(calculator.name)}>Create Link</button>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2" onClick={() => handleGenerateEmbedCode(calculator.calculatorId)}>Create Link</button>
           </div>
         ))}
         <div>
