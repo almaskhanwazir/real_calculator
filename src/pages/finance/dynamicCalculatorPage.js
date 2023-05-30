@@ -1,76 +1,127 @@
-import { useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { changeTheme } from '../../reduxStore/calculatorActions';
 import CalculatorGraph from '../../components/CalculatorGraph';
 import staticData from '../../components/staticData';
-import { format } from 'date-fns';
-import { useRouter } from 'next/router';
-const calculator =
-{
-  name: "Compound Interest Calculator",
-  inputs: [
-    { name: "principle", type: "number", label: "Principle", value: "" },
-    { name: "rate", type: "number", label: "Rate of interest", value: "" },
-    { name: "time", type: "number", label: "Time period", value: "" },
-    {
-      name: "compoundInterval",
-      type: "number",
-      label: "Compounding interval (in months)",
-      value: "",
-    },
-  ],
-  formula:
-    "principle * Math.pow(1 + (rate / (compoundInterval * 100)), (compoundInterval * time)) - principle",
-  resultName: "Compound Interest",
-  isGraph: true
-};
-
 
 const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
-  const router = useRouter();
   const { backgroundColor, textColor } = calculatorTheme;
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [results, setResults] = useState({});
-  
+
   const [formData, setFormData] = useState({});
   const [calculatorData, setCalculatorData] = useState({});
-  
+
   const calculate = (event) => {
-    const { formula, resultName } = calculator;
+    const { formula, resultName } = calculatorData;
+    const allInputs = calculatorData.inputs;
+
     event.preventDefault();
+    const formValues = calculatorData.inputs.reduce((obj, item) => {
+      if (item.type === "array") {
+        obj[item.name] = item.value.map((cf) => cf.amount);
+      } else {
+        obj[item.name] = item.value;
+      }
+      return obj;
+    }, {});
+
     const expression = formula.replace(
       /(\w+)/g,
-      (match) => formData[match] || match
+      (match) => formValues[match] || match
     );
-    const res = eval(expression)
-    
+
+    const res = Number(eval(expression));
+
     setResults(prevState => ({ ...prevState, [resultName]: res }));
   };
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const cal = urlParams.get('cal');
+    
     var allCalculatorsData = staticData.allCalculators
     const curentCalculator = allCalculatorsData.find(d => d.id === cal);
     setCalculatorData(curentCalculator);
-  },[0]);
-  
+  }, [0]);
+
+  const handleArrayInputChange = (e, inputIndex, cashFlowIndex) => {
+    const { name, value } = e.target;
+    const currentInput = calculatorData.inputs[inputIndex].value[cashFlowIndex];
+    currentInput.amount = value;
+    calculatorData.inputs[inputIndex].value = calculatorData.inputs[inputIndex].value.map((d, i) => {
+      if (i !== cashFlowIndex) {
+        return d;
+      } else {
+        return currentInput;
+      }
+    });
+    setCalculatorData(calculatorData);
+
+    const cashFlows = calculatorData.inputs[inputIndex].value.map((cf) => cf.amount);
+    setFormData({
+      ...formData,
+      [name]: cashFlows,
+    });
+  };
+
+  const addCashFlow = (event, inputName) => {
+    event.preventDefault();
+    const inputIndex = calculatorData.inputs.findIndex(
+      (input) => input.name === inputName
+    );
+    const newCashFlow = { period: calculatorData.inputs[inputIndex].value.length + 1, amount: "" };
+    const updatedInputs = [...calculatorData.inputs];
+    const requiredInput = updatedInputs[inputIndex];
+    requiredInput.value = [...requiredInput.value, newCashFlow];
+    setCalculatorData({ ...calculatorData, inputs: updatedInputs });
+
+    const updatedFormData = { ...formData };
+    updatedFormData[inputName] = [...(updatedFormData[inputName] || []), ""];
+    setFormData(updatedFormData);
+  };
+
+  const deleteCashFLow = (event, inputName, cashflow) => {
+    event.preventDefault();
+    let currentInputVal = calculatorData.inputs.find(
+      (input) => input.name === inputName
+    );
+    let updatedInputValues = currentInputVal.value.filter(val => val.period!=cashflow.period);
+    currentInputVal.value = updatedInputValues;
+    
+    const updatedInputs = [...calculatorData.inputs];
+    const requiredInput = updatedInputs[currentInputVal];
+    setCalculatorData({ ...calculatorData, inputs: updatedInputs });
+
+    const updatedFormData = { ...formData };
+    updatedFormData[inputName] = [...(updatedFormData[inputName] || []), ""];
+    setFormData(updatedFormData);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    const currentInput = calculatorData.inputs.find((d) => d.name === name);
+    currentInput.value = value;
+    const updatedInputs = calculatorData.inputs.map((d) => {
+      if (d.name !== name) {
+        return d;
+      } else {
+        return currentInput;
+      }
+    });
+    setCalculatorData({ ...calculatorData, inputs: updatedInputs });
+
     setFormData({
       ...formData,
-      [name]: value
-    })
-
+      [name]: value,
+    });
   };
-
   const renderInputField = (input, index) => {
     switch (input.type) {
       case "text":
       case "number":
         return (
-          <div className="mb-4">
+          <div className="mb-4" key={index}>
             <span htmlFor={input.name} style={{ color: textColor }} className="block font-bold mb-2">{input.label}</span>
             <input
               className="w-full border border-gray-400 p-2 rounded"
@@ -81,34 +132,35 @@ const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
             />
           </div>
         );
-      // case "dropdown":
-      //   return (
-      //     <div key={index}>
-      //       <label htmlFor={input.name}>{input.label}</label>
-      //       <select
-      //         name={input.name}
-      //         onChange={(e) => handleInputChange(e, index)}
-      //       >
-      //         {input.options.map((option, optionIndex) => (
-      //           <option key={optionIndex} value={option}>
-      //             {option}
-      //           </option>
-      //         ))}
-      //       </select>
-      //     </div>
-      //   );
-      // case "checkbox":
-      //   return (
-      //     <div key={index}>
-      //       <input
-      //         type={input.type}
-      //         name={input.name}
-      //         onChange={(e) => handleInputChange(e, index)}
-      //         checked={input.value || false}
-      //       />
-      //       <label htmlFor={input.name}>{input.label}</label>
-      //     </div>
-      //   );
+      case "array":
+        return (
+          <div className="mb-4" key={index}>
+            <span htmlFor={input.name} style={{ color: textColor }} className="block font-bold mb-2">{input.label}</span>
+            {input.value.map((cashFlow, i) => (
+              <div className="flex items-center" key={i}>
+                <span style={{ color: textColor }} className="mr-2">Period {cashFlow.period}:</span>
+                <input
+                  className="w-1/2 border border-gray-400 p-2 rounded mr-2"
+                  type="number"
+                  name={input.name}
+                  onChange={(e) => handleArrayInputChange(e, index, i)}
+                  value={formData[input.name] && formData[input.name][i] ? formData[input.name][i].amount : ""}
+                />
+                <button onClick = {(e)=>deleteCashFLow(e,input.name, cashFlow)} className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+            <button
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+              onClick={(e) => addCashFlow(e, input.name)}
+            >
+              Add Cash Flow
+              </button>
+          </div>
+        );
       default:
         return null;
     }
@@ -127,8 +179,8 @@ const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
       <h1 className="text-3xl font-bold mb-4" style={{ color: textColor }}>{calculatorData.name}</h1>
       <div className={`border-double border-4 border-${textColor}-600 flex float-right`}>
 
-        <p style={{ color: textColor }} class="yy">Dark Theme</p>
-        <label class="ml-4 inline-flex relative items-center cursor-pointer">
+        <p style={{ color: textColor }} className="yy">Dark Theme</p>
+        <label className="ml-4 inline-flex relative items-center cursor-pointer">
           <input
             type="checkbox"
             className="sr-only peer"
@@ -152,18 +204,6 @@ const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
           <button onClick={(e) => calculate(e)} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Calculate</button>
         </div>
         {results[calculatorData.resultName] && (
-
-          // <div className="mb-4">
-          //   <span htmlFor="result" style={{ color: textColor }} className="block font-bold mb-2">"Result"</span>
-          //   <input
-          //     type={"text"}
-          //     name={"result"}
-          //     className="w-full border border-gray-400 p-2 rounded"
-          //     value={results[calculatorData.resultName]}
-
-          //     disabled
-          //   />
-          // </div>
           <div>
             <h2 style={{ color: textColor }} className="text-xl font-bold mb-2">Result</h2>
             <p style={{ color: textColor }}>{results[calculatorData.resultName]}</p>
