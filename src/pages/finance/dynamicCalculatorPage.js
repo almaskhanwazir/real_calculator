@@ -67,17 +67,19 @@ const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
 
   const addCashFlow = (event, inputName) => {
     event.preventDefault();
-    const inputIndex = calculatorData.inputs.findIndex(
-      (input) => input.name === inputName
-    );
-    const newCashFlow = { period: calculatorData.inputs[inputIndex].value.length + 1, amount: "" };
-    const updatedInputs = [...calculatorData.inputs];
-    const requiredInput = updatedInputs[inputIndex];
-    requiredInput.value = [...requiredInput.value, newCashFlow];
-    setCalculatorData({ ...calculatorData, inputs: updatedInputs });
-
+    const inputIndex = calculatorData.inputs.findIndex((input) => input.name === inputName);
+    const lastValueItem = calculatorData.inputs[inputIndex].value[calculatorData.inputs[inputIndex].value.length - 1];
+  
+    const newCashFlow = {
+      period: lastValueItem.period + 1,
+      amount: "",
+    };
+  
+    calculatorData.inputs[inputIndex].value.push(newCashFlow);
+    setCalculatorData(calculatorData);
+  
     const updatedFormData = { ...formData };
-    updatedFormData[inputName] = [...(updatedFormData[inputName] || []), ""];
+    updatedFormData[inputName] = [...(updatedFormData[inputName] || []), newCashFlow];
     setFormData(updatedFormData);
   };
 
