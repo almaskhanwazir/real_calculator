@@ -1,24 +1,46 @@
 const staticData = {
   allCalculators: [
     {
-      id: "1",
+      id: "1", 
       categoryName: "Finance",
       name: "Compound Interest Calculator",
       inputs: [
-        { name: "principle", "required": true, type: "number", label: "Principle", value: "" },
-        { name: "rate", type: "number", "required": true, label: "Rate of interest", value: "" },
-        { name: "time", type: "number", "required": true, label: "Time period", value: "" },
-        {
-          name: "compoundInterval", "required": true,
-          type: "number",
-          label: "Compounding interval (in months)",
-          value: "",
-        },
+        { name: "initialBalance", required: true, type: "number", label: "Initial Balance", value: "" },
+        { name: "interestRate", required: true, type: "number", label: "Interest Rate", value: "" },
+        { name: "time", required: true, type: "number", label: "Term (years)", value: "" },
+        { 
+          name: "compoundFrequency",
+          required: true, 
+          type: "select",
+          options: [
+            { label: "Annually", value: 1 },
+            { label: "Semiannually", value: 2 },
+            { label: "Quarterly", value: 4 },
+            { label: "Monthly", value: 12 }
+          ],
+          label: "Compounding Frequency",
+          value: 1
+        }
       ],
-      formula:
-        "principle * Math.pow(1 + (rate / (compoundInterval * 100)), (compoundInterval * time)) - principle",
-      resultName: "Compound Interest",
-      isGraph: true
+      formula: `
+        initialBalance * 
+        (1 + (interestRate / compoundFrequency)) ^ (compoundFrequency * time)
+      `,
+      resultName: "Final Balance",
+      results: [
+        { name: "totalInterest", label: "Total Interest" }
+      ],
+      isGraph: true,
+      graphData: {
+        xKey: "name",
+        yKeys: ["balance", "totalInterest"],
+        colors: ["#8884d8", "#82ca9d"],
+        title: "Compound Interest Growth",
+        xLabel: "Year",
+        yLabel: "Balance",
+        width: 672,
+        height: 400
+      }
     },
     {
       id: "2",

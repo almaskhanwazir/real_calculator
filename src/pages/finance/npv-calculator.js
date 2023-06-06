@@ -2,70 +2,88 @@ import { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { changeTheme } from "../../reduxStore/calculatorActions";
 import CalculatorGraph from "../../components/CalculatorGraph";
-import staticData from "../../components/staticData";
 import { format } from "date-fns";
 
-const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
+const NPVCalculator = ({ calculatorTheme, changeTheme }) => {
   const { backgroundColor, textColor } = calculatorTheme;
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [results, setResults] = useState({});
   const [graphData, setGraphData] = useState([]);
 
   const [formData, setFormData] = useState({});
-  const [calculatorData, setCalculatorData] = useState({});
+  const [calculatorData, setCalculatorData] = useState({
+    id: "3",
+    categoryName: "Finance",
+    name: "Net Present Value Calculator",
+    inputs: [
+      {
+        name: "initialInvestment",
+        type: "number",
+        label: "Initial Investment",
+        value: 0,
+      },
+      {
+        name: "discountRate",
+        type: "number",
+        label: "Discount Rate",
+        value: 0,
+      },
+      {
+        name: "cashFlows",
+        type: "array",
+        label: "Cash Flows",
+        value: [
+          { period: 1, amount: 0 },
+          { period: 2, amount: 0 },
+          { period: 3, amount: 0 },
+        ],
+      },
+    ],
+    formula: `
+      let pv = 0;
+      let { initialInvestment, discountRate, cashFlows } = inputValues;
+      for (let i = 0; i < cashFlows.length; i++) {
+        let { period, amount } = cashFlows[i];
+        let discountFactor = Math.pow(1 + (discountRate / 100), -period);
+        pv += amount * discountFactor;
+      }
+      pv - initialInvestment;
+    `,
+    resultName: "Net Present Value",
+    isGraph: false,
+  });
 
   const calculate = (event) => {
-    const { formula, resultName, inputs } = calculatorData;
+    const { resultName, inputs } = calculatorData;
     event.preventDefault();
-  
+
     const formValues = inputs.reduce((obj, input) => {
       if (input.type === "array") {
-        obj[input.name] = input.value.map((cf) => cf.amount);
+        obj[input.name] = input.value.map((cf) => parseFloat(cf.amount));
       } else {
-        obj[input.name] = input.value;
+        obj[input.name] = parseFloat(input.value);
       }
       return obj;
     }, {});
-  
-    const data = [];
-  
-    const expression = formula.replace(/(\w+)/g, (match) => {
-      return formValues[match] || match;
-    });
-  
-    const balance = Number(eval(expression));
+    const { initialInvestment, discountRate, cashFlows } = formValues;
+    let discountRateO = discountRate/100;
+    let npv = -initialInvestment;
+
+    for (let i = 0; i < cashFlows.length; i++) {
+      npv += cashFlows[i] / Math.pow(1 + discountRateO, i + 1);
+    }
+    
+    let expectedCashFlow = cashFlows.reduce((sum, cashFlow, index) => {
+      let presentValue = cashFlow / Math.pow(1 + discountRateO, index + 1);
+      return sum + presentValue;
+    }, 0);
+
     setResults((prevState) => ({
       ...prevState,
-      [resultName]: balance.toFixed(2),
+      [resultName]: npv.toFixed(2),
+      "Expected Cash Flow": expectedCashFlow.toFixed(2),
     }));
-  
-    if (calculatorData.isGraph) {
-      let principle = formValues["initialBalance"];
-      let time = formValues["time"];
-      let balance = parseFloat(principle);
-      let totalInterest = 0;
-  
-      for (let i = 1; i <= time; i++) {
-        const expression = formula.replace(/(\w+)/g, (match) => {
-          if (match === "time") {
-            return i;
-          }
-          return formValues[match] || match;
-        });
-  
-        const interest = parseFloat(eval(expression)) - balance;
-        balance += interest;
-        totalInterest += interest;
-        data.push(balance.toFixed(2));
-      }
-      
-      setResults((prevState) => ({
-        ...prevState,
-        [resultName]: totalInterest.toFixed(2),
-      }));
-      setGraphData(getChartData(data));
-    }
-  }
+  };
 
   const getChartData = (data) => {
     return data.map((d, i) => ({
@@ -77,14 +95,7 @@ const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
     }));
   };
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const cal = urlParams.get("cal");
-
-    var allCalculatorsData = staticData.allCalculators;
-    const curentCalculator = allCalculatorsData.find((d) => d.id === cal);
-    setCalculatorData(curentCalculator);
-  }, [0]);
+  useEffect(() => {}, [0]);
 
   const handleArrayInputChange = (e, inputIndex, cashFlowIndex) => {
     const { name, value } = e.target;
@@ -335,18 +346,25 @@ const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
         </div>
         {results[calculatorData.resultName] && (
           <div>
-            <h2 style={{ color: textColor }} className="text-xl font-bold mb-2">
-              Result
-            </h2>
-            <p style={{ color: textColor }}>
-              {results[calculatorData.resultName]}
-            </p>
+            <div>
+              {/* Displaying the NPV */}
+              <span className="text-2xl text-black-500 font-bold">Net Present Value: </span>
+              <span className="text-2xl text-black-300">
+                {results["Net Present Value"]}
+              </span>
+            </div>
+            <div>
+              {/* Displaying the Expected Cash Flow */}
+              <span className="text-2xl text-black-500 font-bold">Expected Cash Flow: </span>
+              <span className="text-2xl text-black-300">
+                {results["Expected Cash Flow"]}
+              </span>
+            </div>
             {calculatorData.isGraph && graphData.length > 0 && (
-              
               <CalculatorGraph
                 data={graphData}
                 graphData={calculatorData.graphData}
-                xKey= {calculatorData.graphData.xKey}
+                xKey={calculatorData.graphData.xKey}
                 yKeys={calculatorData.graphData.yKeys}
                 colors={calculatorData.graphData.colors}
                 title={calculatorData.graphData.title}
@@ -369,7 +387,4 @@ const mapDispatchToProps = {
   changeTheme,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DynamicCalculatorPage);
+export default connect(mapStateToProps, mapDispatchToProps)(NPVCalculator);
