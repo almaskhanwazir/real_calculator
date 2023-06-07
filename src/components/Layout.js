@@ -12,15 +12,8 @@ const Layout = ({ children }) => {
       <header className="bg-gray-800 text-white">
         <nav className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/">
-            <span  className="text-xl font-bold">My App</span >
+            <span  className="text-xl font-bold">Finance Calculator</span >
           </Link>
-          <ul className="flex space-x-4">
-            <li>
-              <Link href="/finance">
-                <span  className="hover:text-gray-300">Finance</span >
-              </Link>
-            </li>
-          </ul>
         </nav>
       </header>
       <main className="flex-1">{children}</main>

@@ -2,77 +2,69 @@ import { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { changeTheme } from "../../reduxStore/calculatorActions";
 import CalculatorGraph from "../../components/CalculatorGraph";
+import staticData from "../../components/staticData";
 import { format } from "date-fns";
 
-const NPVCalculator = ({ calculatorTheme, changeTheme }) => {
+const DynamicCalculatorPage = ({ calculatorTheme, changeTheme }) => {
   const { backgroundColor, textColor } = calculatorTheme;
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [results, setResults] = useState({});
   const [graphData, setGraphData] = useState([]);
 
   const [formData, setFormData] = useState({});
-  const [calculatorData, setCalculatorData] = useState({
-    id: "3",
-    categoryName: "Finance",
-    name: "Net Present Value Calculator",
-    inputs: [
-      {
-        name: "initialInvestment",
-        type: "number",
-        label: "Initial Investment",
-        value: 0,
-      },
-      {
-        name: "discountRate",
-        type: "number",
-        label: "Discount Rate",
-        value: 0,
-      },
-      {
-        name: "cashFlows",
-        type: "array",
-        label: "Cash Flows",
-        value: [
-          { period: 1, amount: 0 },
-          { period: 2, amount: 0 },
-          { period: 3, amount: 0 },
-        ],
-      },
-    ],
-    resultName: "Net Present Value",
-    isGraph: false,
-  });
+  const [calculatorData, setCalculatorData] = useState({});
 
   const calculate = (event) => {
-    const { resultName, inputs } = calculatorData;
+    const { formula, resultName, inputs } = calculatorData;
     event.preventDefault();
 
     const formValues = inputs.reduce((obj, input) => {
       if (input.type === "array") {
-        obj[input.name] = input.value.map((cf) => parseFloat(cf.amount));
+        obj[input.name] = input.value.map((cf) => cf.amount);
       } else {
-        obj[input.name] = parseFloat(input.value);
+        obj[input.name] = input.value;
       }
       return obj;
     }, {});
-    const { initialInvestment, discountRate, cashFlows } = formValues;
-    let discountRateO = discountRate/100;
-    let npv = -initialInvestment;
 
-    for (let i = 0; i < cashFlows.length; i++) {
-      npv += cashFlows[i] / Math.pow(1 + discountRateO, i + 1);
-    }
-    
-    let expectedCashFlow = cashFlows.reduce((sum, cashFlow, index) => {
-      let presentValue = cashFlow / Math.pow(1 + discountRateO, index + 1);
-      return sum + presentValue;
-    }, 0);
+    const data = [];
 
+    const expression = formula.replace(/(\w+)/g, (match) => {
+      return formValues[match] || match;
+    });
+
+    const balance = Number(eval(expression));
     setResults((prevState) => ({
       ...prevState,
-      [resultName]: npv.toFixed(2),
-      "Expected Cash Flow": expectedCashFlow.toFixed(2),
+      [resultName]: balance.toFixed(2),
     }));
+
+    if (calculatorData.isGraph) {
+      let principle = formValues["initialBalance"];
+      let time = formValues["time"];
+      let balance = parseFloat(principle);
+      let totalInterest = 0;
+
+      for (let i = 1; i <= time; i++) {
+        const expression = formula.replace(/(\w+)/g, (match) => {
+          if (match === "time") {
+            return i;
+          }
+          return formValues[match] || match;
+        });
+
+        const interest = parseFloat(eval(expression)) - balance;
+        balance += interest;
+        totalInterest += interest;
+        data.push(balance.toFixed(2));
+      }
+
+      setResults((prevState) => ({
+        ...prevState,
+        [resultName]: totalInterest.toFixed(2),
+      }));
+      setGraphData(getChartData(data));
+    }
   };
 
   const getChartData = (data) => {
@@ -85,7 +77,11 @@ const NPVCalculator = ({ calculatorTheme, changeTheme }) => {
     }));
   };
 
-  useEffect(() => {}, [0]);
+  useEffect(() => {
+    var allCalculatorsData = staticData.investmentCalculators;
+
+    setCalculatorData(allCalculatorsData[0]);
+  }, [0]);
 
   const handleArrayInputChange = (e, inputIndex, cashFlowIndex) => {
     const { name, value } = e.target;
@@ -148,7 +144,6 @@ const NPVCalculator = ({ calculatorTheme, changeTheme }) => {
     currentInputVal.value = updatedInputValues;
 
     const updatedInputs = [...calculatorData.inputs];
-    const requiredInput = updatedInputs[currentInputVal];
     setCalculatorData({ ...calculatorData, inputs: updatedInputs });
 
     const updatedFormData = { ...formData };
@@ -158,6 +153,17 @@ const NPVCalculator = ({ calculatorTheme, changeTheme }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    debugger
+    if(name == "calculatorChange"){
+        var allCalculatorsData = staticData.investmentCalculators;
+
+    setCalculatorData(allCalculatorsData.find(c=>c.id == value));
+    setFormData({
+        ...formData,
+        [name]: value,
+      });
+    return
+    }
     const currentInput = calculatorData.inputs.find((d) => d.name === name);
     currentInput.value = value;
     const updatedInputs = calculatorData.inputs.map((d) => {
@@ -322,6 +328,29 @@ const NPVCalculator = ({ calculatorTheme, changeTheme }) => {
         </label>
       </div>
       <form>
+        <div className="mb-4">
+          <span
+            htmlFor={"calculatorChange"}
+            style={{ color: textColor }}
+            className="block font-bold mb-2"
+          >
+            {"Select Calculator"}
+          </span>
+          <select
+            className="w-full border border-gray-400 p-2 rounded"
+            name={"calculatorChange"}
+            onChange={(e) => handleInputChange(e)}
+            value={formData["calculatorChange"] || ""}
+          >
+            <option value={null}>-- Select a calculator --</option>
+            <option value="1">Final Balance Calculator</option>
+            <option value="2">Initial Investment Calculator</option>
+            <option value="3">Rate of Return Calculator</option>
+            <option value="4">Periodic Contribution Calculator</option>
+          </select>
+        </div>
+        
+
         {calculatorData.inputs &&
           calculatorData.inputs.map((input, inputIndex) =>
             renderInputField(input, inputIndex)
@@ -336,20 +365,12 @@ const NPVCalculator = ({ calculatorTheme, changeTheme }) => {
         </div>
         {results[calculatorData.resultName] && (
           <div>
-            <div>
-              {/* Displaying the NPV */}
-              <span className="text-2xl text-black-500 font-bold">Net Present Value: </span>
-              <span className="text-2xl text-black-300">
-                {results["Net Present Value"]}
-              </span>
-            </div>
-            <div>
-              {/* Displaying the Expected Cash Flow */}
-              <span className="text-2xl text-black-500 font-bold">Expected Cash Flow: </span>
-              <span className="text-2xl text-black-300">
-                {results["Expected Cash Flow"]}
-              </span>
-            </div>
+            <h2 style={{ color: textColor }} className="text-xl font-bold mb-2">
+              Result
+            </h2>
+            <p style={{ color: textColor }}>
+              {calculatorData.name}:{results[calculatorData.resultName]}
+            </p>
             {calculatorData.isGraph && graphData.length > 0 && (
               <CalculatorGraph
                 data={graphData}
@@ -377,4 +398,7 @@ const mapDispatchToProps = {
   changeTheme,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(NPVCalculator);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DynamicCalculatorPage);
